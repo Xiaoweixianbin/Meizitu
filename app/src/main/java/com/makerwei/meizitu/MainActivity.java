@@ -5,12 +5,29 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.makerwei.meizitu.model.Meizi;
 
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+
+import retrofit2.Call;
+
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +43,43 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        Gson gson = new GsonBuilder().create();
+
+        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://gank.io/api/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        GetMeizi getMeizi = retrofit.create(GetMeizi.class);
+        Call<Meizi> call = getMeizi.get();
+        call.enqueue(new Callback<Meizi>() {
+            @Override
+            public void onResponse(Call<Meizi> call, Response<Meizi> response) {
+                String body = response.body().getResults().get(0).getUrl();
+                Log.e("+++++++++",body);
+            }
+
+            @Override
+            public void onFailure(Call<Meizi> call, Throwable t) {
+
+            }
+        });
+        /*call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String body = response.body().string();
+                    //Meizi meizi = gson.fromJson(response.body().string(),new TypeToken<Meizi>(){}.getType());
+                    Log.e("+++++++++",body);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });*/
     }
 
     @Override
