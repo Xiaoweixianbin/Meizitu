@@ -1,5 +1,6 @@
 package com.makerwei.meizitu;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     }
 
    /* private void initRefresh(){
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     protected void getUrl(){
-        Gson gson = new GsonBuilder().create();
+        Gson  gson = new GsonBuilder().create();
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://gank.io/api/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Meizi> call, Response<Meizi> response) {
                 meizi = response.body();
                 ImgsAdapter adapter = new ImgsAdapter(MainActivity.this,meizi);
-                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(adapter);
             }
@@ -90,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -110,5 +114,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public class MyAsyncTast extends AsyncTask{
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            return null;
+        }
     }
 }

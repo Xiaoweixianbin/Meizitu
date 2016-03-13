@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.makerwei.meizitu.R;
 import com.makerwei.meizitu.model.Meizi;
 import com.squareup.picasso.Picasso;
