@@ -12,6 +12,6 @@ import retrofit2.http.Query;
  * Created by weixianbin on 16/3/4.
  */
 public interface GetMeizi {
-    @GET("data/福利/10/1")
-    Call<Meizi> get();
+    @GET("data/福利/10/{id}")
+    Call<Meizi> get(@Path("id") int groupId);
 }

@@ -1,6 +1,8 @@
 package com.makerwei.meizitu;
 
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -34,16 +37,20 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+@TargetApi(Build.VERSION_CODES.M)
+public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener{
+    private int groupId=1;
     private Meizi meizi;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
+    private StaggeredGridLayoutManager layoutManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        layoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
         recyclerView = (RecyclerView) findViewById(R.id.rc_imgs);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -53,36 +60,27 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        getUrl();
+        getUrl(groupId);
 
 
 
 
     }
 
-   /* private void initRefresh(){
-        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.spr_update);
-        swipeRefreshLayout.setRefreshing(true);
-    }*/
-
-    private void initRecyler(){
-        recyclerView = (RecyclerView) findViewById(R.id.rc_imgs);
-
-    }
-    protected void getUrl(){
+    protected void getUrl(int i ){
         Gson  gson = new GsonBuilder().create();
 
         Retrofit retrofit = new Retrofit.Builder().baseUrl("http://gank.io/api/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         GetMeizi getMeizi = retrofit.create(GetMeizi.class);
-        Call<Meizi> call = getMeizi.get();
+        Call<Meizi> call = getMeizi.get(i);
         call.enqueue(new Callback<Meizi>() {
             @Override
             public void onResponse(Call<Meizi> call, Response<Meizi> response) {
                 meizi = response.body();
                 ImgsAdapter adapter = new ImgsAdapter(MainActivity.this,meizi);
-                recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
+                recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(adapter);
             }
@@ -94,33 +92,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public class MyAsyncTast extends AsyncTask{
-
-        @Override
-        protected Object doInBackground(Object[] params) {
-            return null;
-        }
     }
 }
