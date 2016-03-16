@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.makerwei.meizitu.adapter.ImgsAdapter;
 import com.makerwei.meizitu.model.Meizi;
+import com.makerwei.meizitu.net.MyRetrofit;
 
 
 import java.io.IOException;
@@ -37,64 +38,81 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@TargetApi(Build.VERSION_CODES.M)
-public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener{
-    private int groupId=1;
+public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener {
+    private MyRetrofit myRetrofit;
+    private int groupId = 1;
     private Meizi meizi;
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private StaggeredGridLayoutManager layoutManager;
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        layoutManager = new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL);
-        recyclerView = (RecyclerView) findViewById(R.id.rc_imgs);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        myRetrofit = new MyRetrofit(this);
+
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
-        getUrl(groupId);
-
-
+        });*/
+        initToolbar();
+        new LoadImageAsyncTask().execute(groupId);
 
 
     }
 
-    protected void getUrl(int i ){
-        Gson  gson = new GsonBuilder().create();
-
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("http://gank.io/api/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-        GetMeizi getMeizi = retrofit.create(GetMeizi.class);
-        Call<Meizi> call = getMeizi.get(i);
-        call.enqueue(new Callback<Meizi>() {
-            @Override
-            public void onResponse(Call<Meizi> call, Response<Meizi> response) {
-                meizi = response.body();
-                ImgsAdapter adapter = new ImgsAdapter(MainActivity.this,meizi);
-                recyclerView.setLayoutManager(layoutManager);
-                recyclerView.setItemAnimator(new DefaultItemAnimator());
-                recyclerView.setAdapter(adapter);
-            }
-
-            @Override
-            public void onFailure(Call<Meizi> call, Throwable t) {
-
-            }
-        });
+    private void initToolbar() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
     }
 
+    private void initRecyclerView() throws IOException {
+        layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView = (RecyclerView) findViewById(R.id.rc_imgs);
+        ImgsAdapter adapter = new ImgsAdapter(MainActivity.this, meizi);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(adapter);
+    }
 
     @Override
     public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-
+        
     }
+
+
+    public class LoadImageAsyncTask extends AsyncTask<Integer, Void, Meizi> {
+
+        @Override
+        protected Meizi doInBackground(Integer... params) {
+
+            try {
+                meizi = myRetrofit.getData(params[0]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return meizi;
+        }
+
+
+        @Override
+        protected void onPostExecute(Meizi meizi) {
+            super.onPostExecute(meizi);
+            try {
+                initRecyclerView();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
 }

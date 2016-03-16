@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.makerwei.meizitu.R;
 import com.makerwei.meizitu.model.Meizi;
 import com.squareup.picasso.Picasso;
@@ -30,8 +31,9 @@ public class ImgsAdapter extends RecyclerView.Adapter<ImgsAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Picasso.with(mContext)
+        Glide.with(mContext)
                 .load(mMeizi.getResults().get(position).getUrl())
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(holder.imgItem);
     }
 

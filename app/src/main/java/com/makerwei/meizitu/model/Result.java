@@ -5,7 +5,9 @@ package com.makerwei.meizitu.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+import java.io.Serializable;
+
+public class Result implements Serializable {
 
     @SerializedName("_id")
     @Expose
