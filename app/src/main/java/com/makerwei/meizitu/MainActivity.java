@@ -38,6 +38,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@TargetApi(Build.VERSION_CODES.M)
 public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener {
     private MyRetrofit myRetrofit;
     private int groupId = 1;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
     private RecyclerView recyclerView;
     private StaggeredGridLayoutManager layoutManager;
     private Toolbar toolbar;
+    private ImgsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
     private void initRecyclerView() throws IOException {
         layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView = (RecyclerView) findViewById(R.id.rc_imgs);
-        ImgsAdapter adapter = new ImgsAdapter(MainActivity.this, meizi);
+        adapter = new ImgsAdapter(MainActivity.this, meizi);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
@@ -83,15 +85,38 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
 
     @Override
     public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        
+        int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
+        int position = getMaxPosition(lastPositions);
+        if (position + 1 == adapter.getItemCount()) {
+            groupId++;
+            myRetrofit.getMoreData(groupId).enqueue(new Callback<Meizi>() {
+                @Override
+                public void onResponse(Call<Meizi> call, Response<Meizi> response) {
+                    meizi.getResults().addAll(response.body().getResults());
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onFailure(Call<Meizi> call, Throwable t) {
+
+                }
+            });
+        }
     }
 
+    private int getMaxPosition(int[] positions) {
+        int size = positions.length;
+        int maxPosition = Integer.MIN_VALUE;
+        for (int i = 0; i < size; i++) {
+            maxPosition = Math.max(maxPosition, positions[i]);
+        }
+        return maxPosition;
+    }
 
     public class LoadImageAsyncTask extends AsyncTask<Integer, Void, Meizi> {
 
         @Override
         protected Meizi doInBackground(Integer... params) {
-
             try {
                 meizi = myRetrofit.getData(params[0]);
             } catch (IOException e) {
@@ -112,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
             }
         }
     }
-
 
 
 }

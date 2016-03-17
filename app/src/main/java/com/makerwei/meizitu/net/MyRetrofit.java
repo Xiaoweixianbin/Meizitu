@@ -33,4 +33,8 @@ public class MyRetrofit {
         return meiziApi.get(id).execute().body();
     }
 
+    public  Call<Meizi> getMoreData(int id){
+        return meiziApi.get(id);
+    }
+
 }
