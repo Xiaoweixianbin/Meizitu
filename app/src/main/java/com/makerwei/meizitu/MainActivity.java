@@ -104,6 +104,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
         }
     }
 
+    private void get(){
+        
+    }
     private int getMaxPosition(int[] positions) {
         int size = positions.length;
         int maxPosition = Integer.MIN_VALUE;
