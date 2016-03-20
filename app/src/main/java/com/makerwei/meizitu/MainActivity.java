@@ -38,8 +38,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-@TargetApi(Build.VERSION_CODES.M)
-public class MainActivity extends AppCompatActivity implements RecyclerView.OnScrollChangeListener {
+public class MainActivity extends AppCompatActivity{
     private MyRetrofit myRetrofit;
     private int groupId = 1;
     private Meizi meizi;
@@ -81,32 +80,37 @@ public class MainActivity extends AppCompatActivity implements RecyclerView.OnSc
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
+        recyclerView.addOnScrollListener(getOnBottomListener(layoutManager));
     }
 
-    @Override
-    public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-        int[] lastPositions = layoutManager.findLastVisibleItemPositions(new int[layoutManager.getSpanCount()]);
-        int position = getMaxPosition(lastPositions);
-        if (position + 1 == adapter.getItemCount()) {
-            groupId++;
-            myRetrofit.getMoreData(groupId).enqueue(new Callback<Meizi>() {
-                @Override
-                public void onResponse(Call<Meizi> call, Response<Meizi> response) {
-                    meizi.getResults().addAll(response.body().getResults());
-                    adapter.notifyDataSetChanged();
+
+    RecyclerView.OnScrollListener getOnBottomListener(final StaggeredGridLayoutManager layoutManager) {
+        return new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                boolean isBottom = layoutManager.findLastCompletelyVisibleItemPositions(
+                        new int[2])[1] >= adapter.getItemCount() - 6;
+
+                if (isBottom) {
+                    groupId += 1;
+                    myRetrofit.getMoreData(groupId).enqueue(new Callback<Meizi>() {
+                        @Override
+                        public void onResponse(Call<Meizi> call, Response<Meizi> response) {
+                            meizi.getResults().addAll(response.body().getResults());
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Meizi> call, Throwable t) {
+
+                        }
+                    });
                 }
-
-                @Override
-                public void onFailure(Call<Meizi> call, Throwable t) {
-
-                }
-            });
-        }
+            }
+        };
     }
 
-    private void get(){
-        
-    }
     private int getMaxPosition(int[] positions) {
         int size = positions.length;
         int maxPosition = Integer.MIN_VALUE;

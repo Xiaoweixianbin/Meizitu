@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.makerwei.meizitu.R;
 import com.makerwei.meizitu.model.Meizi;
+import com.makerwei.meizitu.utils.OnMeiziTouchListener;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -19,6 +20,7 @@ import com.squareup.picasso.Picasso;
 public class ImgsAdapter extends RecyclerView.Adapter<ImgsAdapter.MyViewHolder> {
     private Meizi mMeizi;
     private Context mContext;
+    private OnMeiziTouchListener mOnMeiziTouchListener;
     public ImgsAdapter(Context context,Meizi meizi){
         this.mContext = context;
         this.mMeizi = meizi;
@@ -48,5 +50,11 @@ public class ImgsAdapter extends RecyclerView.Adapter<ImgsAdapter.MyViewHolder> 
             super(itemView);
             imgItem = (ImageView) itemView.findViewById(R.id.img_item);
         }
+    }
+
+
+
+    public void setmOnMeiziTouchListener(OnMeiziTouchListener onMeiziTouchListener){
+        this.mOnMeiziTouchListener = onMeiziTouchListener;
     }
 }
